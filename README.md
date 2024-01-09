@@ -84,7 +84,7 @@ namespace NanUIDemo3
         // 设置窗体样式类型
         public override HostWindowType WindowType => HostWindowType.System;
         // 指定启动 Url
-        public override string StartUrl => "http://192.168.42.18:8080";
+        public override string StartUrl => "https://www.baidu.com";
         //public override string StartUrl => "http://static.app.local/index.html";
         //public override string StartUrl => "http://assembly.app.local/index.html";
         public MainWindow()
@@ -97,12 +97,12 @@ namespace NanUIDemo3
         {
 
             // 在此处进行浏览器相关操作
-			#if DEBUG
+#if DEBUG
             //debugger 环境
             ShowDevTools();
-			#else
+#else
             //release 环境
-			#endif
+#endif
             //Mapping mapping = Mapping.getInstance();
             //var obj = mapping.getTargetAttributeMethod("TEKLALIB");
             //Console.WriteLine(obj.Count);
@@ -116,3 +116,5 @@ namespace NanUIDemo3
 
 
 # 3、测试
+
+![image-20240109192536568](img/image-20240109192536568.png)
