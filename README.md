@@ -1,14 +1,24 @@
-# 1、通过nuget获取ClayMini包
+# 1、新建NanUI项目
+
+## 1.1、新建项目
+
+![image-20240109225724383](img/image-20240109225724383.png)
+
+![image-20240109225928030](img/image-20240109225928030.png)
+
+## 1.2、通过nuget获取ClayMini包
 
 
 
-![image](img/image.png)
+![image-20240109230042348](img/image-20240109230042348.png)
 
 ![image-20240109092510339](img/image-20240109092510339.png)
 
-# 2、写一小撮代码
+项目结构如下：
 
-2.1、在Program.cs代码中添加
+![image-20240109230356839](img/image-20240109230356839.png)
+
+## 1.3、在Program.cs代码中添加
 
 ```c#
 using NetDimension.NanUI;
@@ -50,9 +60,6 @@ namespace NanUIDemo3
 
             }, app =>
             {
-                app.UseEmbeddedFileResource("http", "assembly.app.local", "wwwroot/dist");
-                //app.UseLocalFileResource("http", "static.app.local", @"./dist");
-                //app.UseLocalFileResource("http", "static.app.local", @"D:/VueProject/plugin/dist");
                 // 指定启动窗体
                 app.UseMainWindow(context => new MainWindow());
             })
@@ -63,7 +70,7 @@ namespace NanUIDemo3
 }
 ```
 
-2.2、添加MainWindow.cs代码
+## 1.4、添加MainWindow.cs代码
 
 ```c#
 using ClayMini.Config;
@@ -85,8 +92,6 @@ namespace NanUIDemo3
         public override HostWindowType WindowType => HostWindowType.System;
         // 指定启动 Url
         public override string StartUrl => "https://www.baidu.com";
-        //public override string StartUrl => "http://static.app.local/index.html";
-        //public override string StartUrl => "http://assembly.app.local/index.html";
         public MainWindow()
         {
             Title = "插件平台";
@@ -104,17 +109,180 @@ namespace NanUIDemo3
             //release 环境
 #endif
             //Mapping mapping = Mapping.getInstance();
-            //var obj = mapping.getTargetAttributeMethod("TEKLALIB");
-            //Console.WriteLine(obj.Count);
-            //RegisterJavaScriptObject("TEKLALIB", obj);
+            //var obj = mapping.getTargetAttributeMethod("CLASSLIB");
+            //RegisterJavaScriptObject("CLASSLIB", obj);
         }
     }
 }
 
 ```
 
-
-
-# 3、测试
+## 1.5、运行测试
 
 ![image-20240109192536568](img/image-20240109192536568.png)
+
+# 2、添加插件LIB形成MVC架构
+
+## 2.1、创建新类库
+
+![image-20240109230719522](img/image-20240109230719522.png)
+
+![image-20240109230805055](img/image-20240109230805055.png)
+
+![image-20240109230955027](img/image-20240109230955027.png)
+
+## 2.2、通过nuget获取ClayMini包
+
+![image-20240109231111066](img/image-20240109231111066.png)
+
+![image-20240109092510339](img/image-20240109092510339.png)
+
+为项目构造如下结构：
+
+![image-20240109231237654](img/image-20240109231237654.png)
+
+## 2.3、在RespBean.cs添加如下代码
+
+```c#
+using ClayMini.Config;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CLASSLIB.Config
+{
+    [MapModel]
+    public class RespBean
+    {
+        public int code { get; set; }
+        public string message { get; set; }
+        public object obj { get; set; }
+
+        public object obj2 { get; set; }
+
+        public RespBean(int code, string message, object obj, object obj2)
+        {
+            this.code = code;
+            this.message = message;
+            this.obj = obj;
+            this.obj2 = obj2;
+        }
+
+        public static RespBean success(string message)
+        {
+            return new RespBean(200, message, null, null);
+        }
+        public static RespBean success(string message, object obj)
+        {
+            return new RespBean(200, message, obj, null);
+        }
+
+        public static RespBean success(string message, object obj1, object obj2)
+        {
+            return new RespBean(200, message, obj1, obj2);
+        }
+
+        public static RespBean error(string message)
+        {
+            return new RespBean(500, message, null, null);
+        }
+
+        public static RespBean error(string message, object obj)
+        {
+            return new RespBean(500, message, obj, null);
+        }
+    }
+}
+
+```
+
+## 2.4、在ProjectController.cs添加如下代码
+
+```c#
+using CLASSLIB.Config;
+using CLASSLIB.Project.Server;
+using ClayMini.Config;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CLASSLIB.Project.Controller
+{
+    [MapClass]
+    public class ProjectController
+    {
+        ProjectServer partServer = ProjectServer.getInstance();
+
+        [MapMethod]
+        public RespBean testMethod()
+        {
+            return RespBean.success("成功", partServer.testMethod());
+        }
+    }
+}
+
+```
+
+## 2.5、在Project.cs添加如下代码
+
+```C#
+using CLASSLIB.Config;
+using ClayMini.Config;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CLASSLIB.Project.Model
+{
+    [MapModel]
+    public class Project
+    {
+        public Project()
+        {
+
+        }
+        public long id { get; set; }
+    }
+}
+
+```
+
+## 2.6、在Project.cs添加如下代码
+
+```c#
+using ClayMini;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CLASSLIB.Project.Server
+{
+    public class ProjectServer : Singleton<ProjectServer>
+    {
+        public Model.Project testMethod() {
+            Model.Project project = new Model.Project();
+            project.id = 1L;
+            return project;
+        }
+    }
+}
+
+```
+
+## 2.7、解开封印
+
+![image-20240109232038922](img/image-20240109232038922.png)
+
+## 2.8、运行测试
+
+![image-20240109232223261](img/image-20240109232223261.png)
+
+**恭喜你做完这一步你就获得了一个基于NanUI的MVC架构**
